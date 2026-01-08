@@ -17,7 +17,7 @@ A comprehensive suite of standardized, animated UI components built with React, 
 All components are already installed. Simply import what you need:
 
 ```tsx
-import { Button, Heading, Card, Input } from "@/app/components/ui";
+import { Button, ButtonGroup, Heading, Card, Input } from "@/app/components/ui";
 ```
 
 ## Components
@@ -41,6 +41,35 @@ Versatile button component with multiple variants and sizes.
 <Button variant="ghost" disabled>
   Disabled Button
 </Button>
+```
+
+### ButtonGroup
+
+Selection group component for choosing between multiple options with visual feedback. Works like styled radio buttons.
+
+**Columns**: `1`, `2`, `3`, `4`
+
+```tsx
+const membershipOptions = [
+  { value: 'student', label: 'Student', description: 'Free for ASU students' },
+  { value: 'alumni', label: 'Alumni', description: '$25/year' },
+  { value: 'industry', label: 'Industry', description: 'Partnership opportunities' },
+];
+
+<ButtonGroup
+  options={membershipOptions}
+  value={selected}
+  onChange={setSelected}
+  columns={3}
+/>
+
+// With custom accent color
+<ButtonGroup
+  options={membershipOptions}
+  value={selected}
+  onChange={setSelected}
+  accentColor="#8C1D40"
+/>
 ```
 
 ### Typography
@@ -195,6 +224,44 @@ Loading skeleton for content placeholders.
 <Skeleton variant="circular" width={40} height={40} />
 
 <Skeleton variant="rectangular" height={200} />
+```
+
+### GradualBlur
+
+A blur overlay component for creating smooth gradient blur effects at container edges. Useful for headers, footers, and scroll fade effects.
+
+**Positions**: `top`, `bottom`, `left`, `right`
+**Presets**: `subtle`, `intense`, `smooth`, `sharp`, `header`, `footer`, `sidebar`, `page-header`, `page-footer`
+**Curves**: `linear`, `bezier`, `ease-in`, `ease-out`, `ease-in-out`
+
+```tsx
+// Basic usage
+<GradualBlur position="bottom" height="6rem" />
+
+// Using presets
+<GradualBlur preset="header" />
+<GradualBlur preset="footer" />
+
+// Custom configuration
+<GradualBlur
+  position="top"
+  height="8rem"
+  strength={3}
+  curve="ease-out"
+  animated
+/>
+
+// Page-level blur (fixed position)
+<GradualBlur preset="page-header" target="page" />
+
+// Responsive heights
+<GradualBlur
+  position="bottom"
+  responsive
+  mobileHeight="4rem"
+  tabletHeight="6rem"
+  desktopHeight="8rem"
+/>
 ```
 
 ## Animation Details
