@@ -52,9 +52,10 @@ Once you're familiar with the fork and pull request workflow, here's how to get 
 
 - Follow the existing code style and conventions
 - Test your changes locally before submitting
+- Make sure your code works in both light and dark modes
 - Visit `/devs` route to see the UI component showcase
 - See the [UI Component README](./app/components/ui/README.md) for component documentation
-- Make sure your code works in both light and dark modes
+- See the main [README](./README.md) for project setup and usage instructions
 
 ## Questions?
 
@@ -64,4 +65,3 @@ If you have questions about contributing, feel free to:
 - Review existing pull requests to see examples
 
 We appreciate your contributions! 🎉
-
