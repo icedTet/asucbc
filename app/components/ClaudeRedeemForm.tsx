@@ -46,6 +46,13 @@ export default function ClaudeRedeemForm() {
   const [cooldownActive, setCooldownActive] = useState(false);
   const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
 
+  // Track page view on mount
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as any).umami) {
+      (window as any).umami.track("Claude Redeem - Page View");
+    }
+  }, []);
+
   // Check localStorage for submission cooldown on mount
   useEffect(() => {
     const lastSubmission = localStorage.getItem("claudeRedeemLastSubmission");
@@ -58,6 +65,13 @@ export default function ClaudeRedeemForm() {
       if (timeRemaining > 0) {
         setCooldownActive(true);
         setCooldownEndTime(lastSubmissionTime + cooldownPeriod);
+        // Track cooldown active on page load
+        if (typeof window !== "undefined" && (window as any).umami) {
+          const hoursRemaining = Math.floor(timeRemaining / (1000 * 60 * 60));
+          (window as any).umami.track("Claude Redeem - Cooldown Active", {
+            hoursRemaining: hoursRemaining,
+          });
+        }
       } else {
         // Cooldown expired, clear localStorage
         localStorage.removeItem("claudeRedeemLastSubmission");
@@ -86,6 +100,10 @@ export default function ClaudeRedeemForm() {
             delete newErrors.location;
             return newErrors;
           });
+          // Track successful location access
+          if (typeof window !== "undefined" && (window as any).umami) {
+            (window as any).umami.track("Claude Redeem - Location Granted");
+          }
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -95,6 +113,13 @@ export default function ClaudeRedeemForm() {
             location:
               "Location access is required. Please enable location services.",
           }));
+          // Track location access denied
+          if (typeof window !== "undefined" && (window as any).umami) {
+            (window as any).umami.track("Claude Redeem - Location Denied", {
+              errorCode: error.code,
+              errorMessage: error.message,
+            });
+          }
         },
         {
           enableHighAccuracy: true,
@@ -107,6 +132,10 @@ export default function ClaudeRedeemForm() {
       setErrors({
         location: "Geolocation is not supported by your browser.",
       });
+      // Track geolocation not supported
+      if (typeof window !== "undefined" && (window as any).umami) {
+        (window as any).umami.track("Claude Redeem - Geolocation Unsupported");
+      }
     }
   }, []);
 
@@ -194,17 +223,32 @@ export default function ClaudeRedeemForm() {
         setCooldownEndTime(Date.now() + 24 * 60 * 60 * 1000);
         // Track successful submission
         if (typeof window !== "undefined" && (window as any).umami) {
-          (window as any).umami.track("Claude Redeem Form Submitted");
+          (window as any).umami.track("Claude Redeem - SUCCESS", {
+            email: formData.asuEmail,
+            hasReceivedCredits: formData.hasReceivedCredits,
+          });
         }
       } else {
         setSubmitStatus("error");
         setErrorMessage(
           data.error || "An error occurred while submitting the form"
         );
-        // Track submission error
+        // Track submission error with detailed reason
         if (typeof window !== "undefined" && (window as any).umami) {
-          (window as any).umami.track("Claude Redeem Form Error", {
+          let errorType = "Unknown Error";
+          if (response.status === 403) {
+            errorType = "Location Too Far";
+          } else if (response.status === 400) {
+            errorType = "Invalid Email";
+          } else if (response.status === 503) {
+            errorType = "Service Unavailable";
+          }
+
+          (window as any).umami.track("Claude Redeem - FAILED_ATTEMPT", {
             status: response.status,
+            errorType: errorType,
+            errorMessage: data.error,
+            email: formData.asuEmail,
           });
         }
       }
@@ -212,6 +256,13 @@ export default function ClaudeRedeemForm() {
       console.error("Form submission error:", error);
       setSubmitStatus("error");
       setErrorMessage("Network error. Please try again.");
+      // Track network errors
+      if (typeof window !== "undefined" && (window as any).umami) {
+        (window as any).umami.track("Claude Redeem - Network Error", {
+          error: error instanceof Error ? error.message : "Unknown error",
+          email: formData.asuEmail,
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -238,10 +289,13 @@ export default function ClaudeRedeemForm() {
     <div className="max-w-2xl mx-auto pt-8 sm:pt-12 md:pt-16">
       <div className="mb-8">
         <Heading level="h2" animate={false} className="mb-4">
-          Free Claude API Credits
+          Free Claude API Credits + Pro
         </Heading>
+        <Text size="lg" variant="primary" className="mb-2 font-semibold">
+          Get free Claude Pro for the semester plus API credits!
+        </Text>
         <Text size="sm" variant="secondary">
-          All fields marked with * are required. Location verification is required to redeem credits.
+          All fields marked with * are required. Location verification is required to redeem.
         </Text>
       </div>
 
@@ -292,7 +346,7 @@ export default function ClaudeRedeemForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* First Name */}
-        <div>
+        <div className={locationStatus === "error" ? "opacity-50" : ""}>
           <Label htmlFor="firstName" required>
             First Name
           </Label>
@@ -305,11 +359,12 @@ export default function ClaudeRedeemForm() {
             error={errors.firstName}
             placeholder="Enter your first name"
             fullWidth
+            disabled={locationStatus === "error"}
           />
         </div>
 
         {/* Last Name */}
-        <div>
+        <div className={locationStatus === "error" ? "opacity-50" : ""}>
           <Label htmlFor="lastName" required>
             Last Name
           </Label>
@@ -322,11 +377,12 @@ export default function ClaudeRedeemForm() {
             error={errors.lastName}
             placeholder="Enter your last name"
             fullWidth
+            disabled={locationStatus === "error"}
           />
         </div>
 
         {/* ASU Email */}
-        <div>
+        <div className={locationStatus === "error" ? "opacity-50" : ""}>
           <Label htmlFor="asuEmail" required>
             ASU Email (must end in .edu)
           </Label>
@@ -339,11 +395,12 @@ export default function ClaudeRedeemForm() {
             error={errors.asuEmail}
             placeholder="your.email@asu.edu"
             fullWidth
+            disabled={locationStatus === "error"}
           />
         </div>
 
         {/* Has Received Credits */}
-        <div>
+        <div className={locationStatus === "error" ? "opacity-50 pointer-events-none" : ""}>
           <Label required>Have you received your API credits?</Label>
           <ButtonGroup
             options={[
@@ -378,7 +435,7 @@ export default function ClaudeRedeemForm() {
         </div>
 
         {/* Claude Org ID */}
-        <div>
+        <div className={locationStatus === "error" ? "opacity-50" : ""}>
           <Label htmlFor="orgId" required>
             What&apos;s your Claude platform Org ID?
           </Label>
@@ -391,6 +448,7 @@ export default function ClaudeRedeemForm() {
             error={errors.orgId}
             placeholder="org-xxxxxxxxxxxxxxxxxxxxx"
             fullWidth
+            disabled={locationStatus === "error"}
           />
           <Text size="xs" variant="secondary" className="mt-2">
             You can find your Org ID in your Claude Console settings
