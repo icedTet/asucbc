@@ -79,7 +79,7 @@ export default function RedeemPage() {
               animate="visible"
             >
               <Heading level="h1" animate={false} className="leading-tight mb-2">
-                Redeem Your <span className="text-[var(--theme-text-accent)] font-bold">Free Claude Credits</span>
+                Free <span className="text-[var(--theme-text-accent)] font-bold">Claude Pro + API Credits</span>
               </Heading>
             </motion.div>
             <motion.div
@@ -89,7 +89,7 @@ export default function RedeemPage() {
               whileHover={{ scale: 1.05, rotate: [0, -2, 2, -2, 0] }}
               className="inline-block mb-4 cursor-default"
             >
-              <Badge variant="primary" size="lg">EXCLUSIVE OFFER</Badge>
+              <Badge variant="primary" size="lg">EXCLUSIVE SEMESTER OFFER</Badge>
             </motion.div>
             <motion.div
               variants={descriptionVariants}
@@ -97,7 +97,7 @@ export default function RedeemPage() {
               animate="visible"
             >
               <Text size="xl" variant="secondary" className="max-w-2xl mx-auto leading-relaxed">
-                Get access to free Claude API credits. Location verification required.
+                Get free Claude Pro for the semester + API credits. Location verification required.
               </Text>
             </motion.div>
           </div>

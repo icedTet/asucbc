@@ -118,14 +118,14 @@ export default function ClaudeRedeemCongratulations() {
 
       <motion.div variants={itemVariants}>
         <Text size="xl" variant="primary" className="mb-6 font-semibold">
-          Your Claude Credits request has been submitted!
+          Your Claude Pro + API Credits request has been submitted!
         </Text>
       </motion.div>
 
       <motion.div variants={itemVariants}>
         <Text size="base" variant="secondary" className="mb-8 max-w-xl mx-auto">
           We've received your redemption request and will process it shortly.
-          You should receive your API credits within 1-2 business days.
+          You should receive your Claude Pro access and API credits within 1-2 business days.
         </Text>
       </motion.div>
 
@@ -141,7 +141,7 @@ export default function ClaudeRedeemCongratulations() {
                 <span className="text-[var(--theme-text-accent)] text-sm font-bold">1</span>
               </div>
               <Text size="base" variant="primary">
-                <strong>Check your email</strong> for confirmation and next steps
+                <strong>Check your email</strong> for your Claude Pro invitation and API credits
               </Text>
             </div>
             <div className="flex items-start space-x-3">
@@ -149,7 +149,7 @@ export default function ClaudeRedeemCongratulations() {
                 <span className="text-[var(--theme-text-accent)] text-sm font-bold">2</span>
               </div>
               <Text size="base" variant="primary">
-                <strong>Log into Claude Console</strong> and check your organization credits
+                <strong>Activate Claude Pro</strong> and enjoy unlimited access for the semester
               </Text>
             </div>
             <div className="flex items-start space-x-3">
@@ -157,7 +157,7 @@ export default function ClaudeRedeemCongratulations() {
                 <span className="text-[var(--theme-text-accent)] text-sm font-bold">3</span>
               </div>
               <Text size="base" variant="primary">
-                <strong>Start building</strong> amazing projects with Claude!
+                <strong>Use the API</strong> to build amazing projects with your credits
               </Text>
             </div>
           </div>

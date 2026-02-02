@@ -37,39 +37,67 @@ function calculateDistance(
 // Send data to Discord webhook
 async function sendToDiscordWebhook(
   webhookUrl: string,
-  formData: RedeemFormData
+  formData: RedeemFormData,
+  status: "SUCCESS" | "FAILED_ATTEMPT",
+  failureReason?: string,
+  distance?: number
 ): Promise<boolean> {
   try {
+    const isSuccess = status === "SUCCESS";
+    const embedColor = isSuccess ? 5763719 : 15548997; // Green for success, Red for failure
+    const contentPrefix = isSuccess ? "✅ SUCCESS" : "❌ FAILED_ATTEMPT";
+
+    const fields = [
+      { name: "Status", value: status, inline: true },
+      { name: "First Name", value: formData.firstName, inline: true },
+      { name: "Last Name", value: formData.lastName, inline: true },
+      { name: "ASU Email", value: formData.asuEmail },
+      {
+        name: "Has Received Credits",
+        value: formData.hasReceivedCredits ? "Yes" : "No",
+        inline: true,
+      },
+      { name: "Claude Org ID", value: formData.orgId },
+      {
+        name: "Location",
+        value: `Lat: ${formData.latitude.toFixed(6)}, Long: ${formData.longitude.toFixed(6)}`,
+      },
+      {
+        name: "Google Maps",
+        value: `[View on Map](https://www.google.com/maps?q=${formData.latitude},${formData.longitude})`,
+      },
+    ];
+
+    // Add distance field if provided
+    if (distance !== undefined) {
+      fields.push({
+        name: "Distance from Event",
+        value: `${distance.toFixed(2)} feet`,
+        inline: true,
+      });
+    }
+
+    // Add failure reason if provided
+    if (failureReason) {
+      fields.push({
+        name: "Failure Reason",
+        value: failureReason,
+        inline: false,
+      });
+    }
+
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        content: "New Claude Credits Redemption Request",
+        content: `${contentPrefix} - Claude Credits Redemption Request`,
         embeds: [
           {
-            title: "Claude API Credits Redemption",
-            color: 16763802, // Orange color
-            fields: [
-              { name: "First Name", value: formData.firstName, inline: true },
-              { name: "Last Name", value: formData.lastName, inline: true },
-              { name: "ASU Email", value: formData.asuEmail },
-              {
-                name: "Has Received Credits",
-                value: formData.hasReceivedCredits ? "Yes" : "No",
-                inline: true,
-              },
-              { name: "Claude Org ID", value: formData.orgId },
-              {
-                name: "Location",
-                value: `Lat: ${formData.latitude.toFixed(6)}, Long: ${formData.longitude.toFixed(6)}`,
-              },
-              {
-                name: "Google Maps",
-                value: `[View on Map](https://www.google.com/maps?q=${formData.latitude},${formData.longitude})`,
-              },
-            ],
+            title: `Claude API Credits Redemption - ${status}`,
+            color: embedColor,
+            fields,
             timestamp: new Date().toISOString(),
             thumbnail: { url: "https://asucbc.vercel.app/staff/claude.svg" },
           },
@@ -107,8 +135,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get Discord webhook URLs (needed for both success and failure tracking)
+    const webhookUrls = process.env.DISCORD_REDEEM_WEBHOOK_URLS
+      ? process.env.DISCORD_REDEEM_WEBHOOK_URLS.split(",").map((url) =>
+          url.trim()
+        )
+      : [];
+
     // Validate email ends with .edu
     if (!formData.asuEmail.toLowerCase().endsWith(".edu")) {
+      // Send FAILED_ATTEMPT webhook for invalid email
+      if (webhookUrls.length > 0 && webhookUrls[0]) {
+        await sendToDiscordWebhook(
+          webhookUrls[0],
+          formData,
+          "FAILED_ATTEMPT",
+          `Invalid email: ${formData.asuEmail} (does not end with .edu)`
+        );
+      }
       return NextResponse.json(
         { error: "Email must end with .edu" },
         { status: 400 }
@@ -135,16 +179,41 @@ export async function POST(request: NextRequest) {
       eventLong
     );
 
+    // Check if webhooks are configured
+    if (webhookUrls.length === 0) {
+      console.error("No Discord webhook URLs configured");
+      return NextResponse.json(
+        { error: "Webhook not configured" },
+        { status: 503 }
+      );
+    }
+
     // Check if within 150 feet
     const MAX_DISTANCE_FEET = 150;
     if (distance > MAX_DISTANCE_FEET) {
       console.log(
         `Location verification failed: ${distance.toFixed(2)} feet away (max: ${MAX_DISTANCE_FEET} feet)`
       );
+
+      // Send FAILED_ATTEMPT webhook
+      const failureReason = `Location too far: ${distance.toFixed(2)} feet from event (max: ${MAX_DISTANCE_FEET} feet)`;
+      for (const webhookUrl of webhookUrls) {
+        if (webhookUrl) {
+          await sendToDiscordWebhook(
+            webhookUrl,
+            formData,
+            "FAILED_ATTEMPT",
+            failureReason,
+            distance
+          );
+          break; // Only send to first webhook for failed attempts
+        }
+      }
+
       return NextResponse.json(
         {
           error:
-            "You must be at the event location to redeem credits. Please try again when you arrive.",
+            "You seem to be too far from the meeting location to redeem credits. Please try again when you arrive.",
         },
         { status: 403 }
       );
@@ -154,26 +223,17 @@ export async function POST(request: NextRequest) {
       `Location verified: ${distance.toFixed(2)} feet from event location`
     );
 
-    // Get Discord webhook URLs
-    const webhookUrls = process.env.DISCORD_REDEEM_WEBHOOK_URLS
-      ? process.env.DISCORD_REDEEM_WEBHOOK_URLS.split(",").map((url) =>
-          url.trim()
-        )
-      : [];
-
-    if (webhookUrls.length === 0) {
-      console.error("No Discord webhook URLs configured");
-      return NextResponse.json(
-        { error: "Webhook not configured" },
-        { status: 503 }
-      );
-    }
-
-    // Try sending to webhooks sequentially until one succeeds
+    // Try sending SUCCESS webhook to webhooks sequentially until one succeeds
     let success = false;
     for (const webhookUrl of webhookUrls) {
       if (webhookUrl) {
-        const result = await sendToDiscordWebhook(webhookUrl, formData);
+        const result = await sendToDiscordWebhook(
+          webhookUrl,
+          formData,
+          "SUCCESS",
+          undefined,
+          distance
+        );
         if (result) {
           success = true;
           console.log(`Successfully sent to webhook: ${webhookUrl}`);
