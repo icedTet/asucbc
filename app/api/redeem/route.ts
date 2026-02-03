@@ -86,13 +86,24 @@ async function sendToDiscordWebhook(
       });
     }
 
+    // Prepare JSON data for content
+    const jsonData = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      asuEmail: formData.asuEmail,
+      hasReceivedCredits: formData.hasReceivedCredits ? "Yes" : "No",
+      claudeOrgId: formData.orgId,
+      campus: "Tempe",
+      meetingDate: new Date().toISOString().split('T')[0],
+    };
+
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        content: `${contentPrefix} - Claude Credits Redemption Request`,
+        content: `${contentPrefix} - Claude Credits Redemption Request\n\`\`\`json\n${JSON.stringify(jsonData, null, 2)}\n\`\`\``,
         embeds: [
           {
             title: `Claude API Credits Redemption - ${status}`,
