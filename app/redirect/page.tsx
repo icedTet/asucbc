@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Heading, Text } from "../components/ui";
 
-export default function RedirectPage() {
+function RedirectContent() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
@@ -57,5 +57,21 @@ export default function RedirectPage() {
         <Text>Please wait while we redirect you.</Text>
       </div>
     </div>
+  );
+}
+
+export default function RedirectPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="text-center space-y-4">
+            <Heading level="h2">Loading...</Heading>
+          </div>
+        </div>
+      }
+    >
+      <RedirectContent />
+    </Suspense>
   );
 }
