@@ -15,10 +15,13 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://claudebuilder.club"),
   title: "ASU Claude Builder Club",
   description: "ASU Claude Builder Club - Building with Claude AI",
   openGraph: {
     type: "website",
+    siteName: "ASU Claude Builder Club",
+    url: "https://claudebuilder.club",
   },
   twitter: {
     card: "summary_large_image",
