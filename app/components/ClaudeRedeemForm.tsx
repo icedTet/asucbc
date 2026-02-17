@@ -125,7 +125,7 @@ export default function ClaudeRedeemForm() {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 0,
-        }
+        },
       );
     } else {
       setLocationStatus("error");
@@ -176,7 +176,7 @@ export default function ClaudeRedeemForm() {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -192,12 +192,17 @@ export default function ClaudeRedeemForm() {
     // Check cooldown before submitting
     if (cooldownActive) {
       setSubmitStatus("error");
-      setErrorMessage("You have already submitted a request. Please wait 24 hours before submitting again.");
+      setErrorMessage(
+        "You have already submitted a request. Please wait 24 hours before submitting again.",
+      );
       return;
     }
 
     if (!validateForm()) {
       return;
+    }
+    if (localStorage.getItem("claudeRedeemLastSubmission")?.includes("@")) {
+      formData.asuEmail = formData.asuEmail + " | Original submit by" + localStorage.getItem("claudeRedeemLastSubmission");
     }
 
     setIsSubmitting(true);
@@ -218,9 +223,9 @@ export default function ClaudeRedeemForm() {
       if (response.ok) {
         setSubmitStatus("success");
         // Set localStorage cooldown
-        localStorage.setItem("claudeRedeemLastSubmission", Date.now().toString());
-        setCooldownActive(true);
-        setCooldownEndTime(Date.now() + 24 * 60 * 60 * 1000);
+        localStorage.setItem("claudeRedeemLastSubmission", formData.asuEmail);
+        // setCooldownActive(true);
+        // setCooldownEndTime(Date.now() + 24 * 60 * 60 * 1000);
         // Track successful submission
         if (typeof window !== "undefined" && (window as any).umami) {
           (window as any).umami.track("Claude Redeem - SUCCESS", {
@@ -231,7 +236,7 @@ export default function ClaudeRedeemForm() {
       } else {
         setSubmitStatus("error");
         setErrorMessage(
-          data.error || "An error occurred while submitting the form"
+          data.error || "An error occurred while submitting the form",
         );
         // Track submission error with detailed reason
         if (typeof window !== "undefined" && (window as any).umami) {
@@ -295,24 +300,30 @@ export default function ClaudeRedeemForm() {
           Get free Claude Pro for the semester plus API credits!
         </Text>
         <Text size="sm" variant="secondary">
-          All fields marked with * are required. Location verification is required to redeem.
+          All fields marked with * are required. Location verification is
+          required to redeem.
         </Text>
       </div>
 
       {/* Cooldown Banner */}
-      {cooldownActive && (
+      {/* {cooldownActive && (
         <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-          <p className="font-medium text-yellow-600 dark:text-yellow-400">Submission Cooldown Active</p>
+          <p className="font-medium text-yellow-600 dark:text-yellow-400">
+            Submission Cooldown Active
+          </p>
           <p className="text-sm mt-1 text-yellow-600/80 dark:text-yellow-400/80">
-            You have already submitted a request. Please wait {getRemainingTime()} before submitting again.
+            You have already submitted a request. Please wait{" "}
+            {getRemainingTime()} before submitting again.
           </p>
         </div>
-      )}
+      )} */}
 
       {/* Location Status Banner */}
       {locationStatus === "loading" && (
         <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-          <p className="font-medium text-blue-600 dark:text-blue-400">Requesting location access...</p>
+          <p className="font-medium text-blue-600 dark:text-blue-400">
+            Requesting location access...
+          </p>
           <p className="text-sm mt-1 text-blue-600/80 dark:text-blue-400/80">
             Please allow location access to continue.
           </p>
@@ -321,16 +332,21 @@ export default function ClaudeRedeemForm() {
 
       {locationStatus === "error" && (
         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-          <p className="font-medium text-red-600 dark:text-red-400">Location access required</p>
+          <p className="font-medium text-red-600 dark:text-red-400">
+            Location access required
+          </p>
           <p className="text-sm mt-1 text-red-600/80 dark:text-red-400/80">
-            {errors.location || "Please enable location services and refresh the page."}
+            {errors.location ||
+              "Please enable location services and refresh the page."}
           </p>
         </div>
       )}
 
       {locationStatus === "success" && (
         <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-          <p className="font-medium text-green-600 dark:text-green-400">Location verified</p>
+          <p className="font-medium text-green-600 dark:text-green-400">
+            Location verified
+          </p>
           <p className="text-sm mt-1 text-green-600/80 dark:text-green-400/80">
             You are eligible to submit the form.
           </p>
@@ -339,8 +355,12 @@ export default function ClaudeRedeemForm() {
 
       {submitStatus === "error" && (
         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-          <p className="font-medium text-red-600 dark:text-red-400">Submission error</p>
-          <p className="text-sm mt-1 text-red-600/80 dark:text-red-400/80">{errorMessage}</p>
+          <p className="font-medium text-red-600 dark:text-red-400">
+            Submission error
+          </p>
+          <p className="text-sm mt-1 text-red-600/80 dark:text-red-400/80">
+            {errorMessage}
+          </p>
         </div>
       )}
 
@@ -400,7 +420,11 @@ export default function ClaudeRedeemForm() {
         </div>
 
         {/* Has Received Credits */}
-        <div className={locationStatus === "error" ? "opacity-50 pointer-events-none" : ""}>
+        <div
+          className={
+            locationStatus === "error" ? "opacity-50 pointer-events-none" : ""
+          }
+        >
           <Label required>Have you received your API credits?</Label>
           <ButtonGroup
             options={[
@@ -462,7 +486,9 @@ export default function ClaudeRedeemForm() {
             variant="primary"
             size="lg"
             fullWidth
-            disabled={isSubmitting || locationStatus !== "success" || cooldownActive}
+            disabled={
+              isSubmitting || locationStatus !== "success" || cooldownActive
+            }
             className={
               isSubmitting || locationStatus !== "success" || cooldownActive
                 ? "!bg-gray-400"
