@@ -11,6 +11,8 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { showHackathonPromo } from "../theme-config";
+import WinnersGallery from "../components/WinnersGallery";
+import { hackasu1Winners } from "../data/hackathon1-winners";
 
 const headerVariants = {
   hidden: { opacity: 0, y: -30 },
@@ -994,6 +996,30 @@ export default function Hackathon() {
     <div className="max-h-full flex flex-col">
       <Header />
 
+      {/* Previous Event Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="sticky top-0 z-40 bg-gradient-to-r from-[var(--theme-text-accent)] to-[var(--theme-button-alternate-bg)] text-white shadow-lg"
+      >
+        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm sm:text-base">
+            <span className="text-xl">📚</span>
+            <span className="font-semibold">You're viewing a previous hackathon event (Nov 2025)</span>
+          </div>
+          <Link href="/hackathon2">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="!bg-white !text-[var(--theme-text-accent)] hover:!bg-gray-100 whitespace-nowrap"
+            >
+              View Current Hackathon →
+            </Button>
+          </Link>
+        </div>
+      </motion.div>
+
       {/* Hero Section */}
       <section className="relative pt-12 pb-20 px-4 sm:px-8 overflow-hidden">
         <div className="max-w-6xl mx-auto text-center">
@@ -1049,6 +1075,13 @@ export default function Hackathon() {
           </motion.div>
         </div>
       </section>
+
+      {/* Winners Gallery Section */}
+      <WinnersGallery
+        winners={hackasu1Winners}
+        title="HackASU 2025 Winners"
+        description="Congratulations to all the incredible teams who built amazing projects!"
+      />
 
       {/* Check-In Logistics Section */}
       <section className="py-12 px-4 sm:px-8">

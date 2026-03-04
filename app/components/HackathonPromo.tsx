@@ -42,30 +42,43 @@ export default function HackathonPromo({
           {/* Content overlay */}
           <div className="relative p-4 sm:p-6">
             <Heading level="h3" animate={false} className="mb-2 leading-tight">
-              HackASU 2025
+              Claude Builder Club Hackathon
             </Heading>
 
             <Text size="lg" className="leading-relaxed mb-4">
-              Build something remarkable at ASU’s 24‑hour hackathon. Sponsored by
-              Anthropic, Polymarket, Acorns, Silicon Oasis, StreetSmart, and more.
+              Join us for 2+ days of innovation and creativity. Build the future with AI at ASU.
             </Text>
 
             <ul className="list-disc space-y-1.5 mb-4 text-base pl-6">
-              <li>Free Claude Pro accounts + $50 in API credits</li>
-              <li>Thousands in prizes</li>
-              <li>Free food, drinks, and swag</li>
+              <li>Build amazing projects with Claude AI</li>
+              <li>Network with fellow developers</li>
+              <li>Free food and resources</li>
               <li>Mentorship and community</li>
             </ul>
 
-            <Link href="/hackathon" className="w-full inline-block" data-umami-event="Hackathon Register" data-umami-event-location="HackathonPromo">
+            <Link href="/hackathon2/signup" className="w-full inline-block" data-umami-event="Hackathon2 Register" data-umami-event-location="HackathonPromo">
               <Button variant="primary" size="md" fullWidth>
                 Register Now — Limited Spots
               </Button>
             </Link>
 
             <Text size="xs" className="text-center mt-3">
-              Nov 8–9 • Starts 11 AM
+              Mar 20–22, 2026 • PSH 150/151
             </Text>
+
+            {/* Previous Hackathon Banner */}
+            <div className="mt-4 pt-4 border-t border-[var(--theme-card-border)]">
+              <Link
+                href="/hackathon1"
+                className="flex items-center justify-center gap-2 text-sm text-[var(--theme-text-dark)] hover:text-[var(--theme-text-accent)] transition-colors"
+                data-umami-event="View Previous Hackathon"
+                data-umami-event-location="HackathonPromo"
+              >
+                <span>📚</span>
+                <span>View HackASU 2025 (Previous Event)</span>
+                <span>→</span>
+              </Link>
+            </div>
           </div>
         </div>
       </Tilt>

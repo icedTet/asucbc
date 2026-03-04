@@ -2,11 +2,9 @@
 
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import HackathonSignupForm from "../../components/HackathonSignupForm";
+import Hackathon2SignupForm from "../../components/Hackathon2SignupForm";
 import { Heading, Text, Badge, Card } from "../../components/ui";
 import { motion } from "framer-motion";
-import { notFound } from "next/navigation";
-import { showHackathonPromo } from "../../theme-config";
 
 const headerVariants = {
   hidden: { opacity: 0, y: -20 },
@@ -67,11 +65,7 @@ const formVariants = {
   },
 };
 
-export default function Hackathon() {
-  if (!showHackathonPromo) {
-    notFound();
-  }
-
+export default function Hackathon2Signup() {
   return (
     <div className="max-h-full flex flex-col">
       <Header />
@@ -85,7 +79,7 @@ export default function Hackathon() {
               animate="visible"
             >
               <Heading level="h1" animate={false} className="leading-tight mb-2">
-                <span className="text-[var(--theme-text-accent)] font-bold underline">HackASU</span> 2025
+                <span className="text-[var(--theme-text-accent)] font-bold underline">Claude Builder Club</span> Hackathon
               </Heading>
             </motion.div>
             <motion.div
@@ -95,7 +89,7 @@ export default function Hackathon() {
               whileHover={{ scale: 1.05, rotate: [0, -2, 2, -2, 0] }}
               className="inline-block mb-4 cursor-default"
             >
-              <Badge variant="primary" size="lg">LIMITED TIME OPPORTUNITY</Badge>
+              <Badge variant="primary" size="lg">SPRING 2026 HACKATHON</Badge>
             </motion.div>
             <motion.div
               variants={descriptionVariants}
@@ -103,7 +97,10 @@ export default function Hackathon() {
               animate="visible"
             >
               <Text size="xl" variant="secondary" className="max-w-2xl mx-auto leading-relaxed">
-                <strong>Nov 8–9, 11 AM</strong> • Memorial Union, Pima (230)
+                <strong>Fri, Mar 20, 2026 4:00 PM – Sun, Mar 22, 2026 6:00 PM</strong>
+              </Text>
+              <Text size="lg" variant="secondary" className="max-w-2xl mx-auto leading-relaxed mt-2">
+                PSH 150 / 151
               </Text>
             </motion.div>
           </div>
@@ -115,7 +112,7 @@ export default function Hackathon() {
             animate="visible"
           >
             <Card gradient animated={false} className="shadow-xl">
-              <HackathonSignupForm />
+              <Hackathon2SignupForm />
             </Card>
           </motion.div>
         </div>

@@ -305,7 +305,7 @@ export default function Header() {
                 {showHackathonPromo && (
                   <motion.div variants={mobileItemVariants}>
                     <Link
-                      href="/hackathon"
+                      href="/hackathon2"
                       className={`relative z-20 flex px-3 py-4 bg-[var(--theme-button-alternate-bg)] text-[var(--theme-button-alternate-text)] hover:bg-[var(--theme-button-hover-bg)] hover:text-[var(--theme-button-hover-text)] transition-all duration-300 ease-in-out font-medium text-base font-sans border border-[var(--theme-button-alternate-border)] hover:border-[var(--theme-button-hover-border)] rounded-lg min-h-[48px] items-center touch-manipulation`}
                       onClick={() => setIsMobileMenuOpen(false)}
                       data-umami-event="Mobile Nav - Hackathon"
